@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/workspace
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - restore_cache:
+          key: yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}-2
+      - run:
+          name: nodejs's version
+          command: node -v
+      - run:
+          name: Install dependencies
+          command: yarn
+      - run:
+          name: Build
+          command: yarn build
+      - run:
+          name: Check dist
+          command: ls .nuxt/dist
+      - save_cache:
+          key: yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/workspace/node_modules
+
+workflows:
+  version: 2
+  buildand_deploy:
+    jobs:
+      - build
